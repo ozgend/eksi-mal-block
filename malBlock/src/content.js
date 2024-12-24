@@ -149,7 +149,8 @@ const processEntries = () => {
   });
 }
 
-processEntries();
+// delay for gecko
+setTimeout(processEntries, 2000);
 
 const observer = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
