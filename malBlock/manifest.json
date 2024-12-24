@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "malBlock",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "denolk",
   "description": "malBlock chrome extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions",
   "browser_specific_settings": {
