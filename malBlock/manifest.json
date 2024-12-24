@@ -29,7 +29,12 @@
   "content_scripts": [
     {
       "matches": [
+        "*://eksisozluk.com/*",
         "*://*.eksisozluk.com/*"
+      ],
+      "exclude_matches": [
+        "*://eksisozluk.com/biri/*",
+        "*://*.eksisozluk.com/biri/*"
       ],
       "js": [
         "src/content.js"

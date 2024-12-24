@@ -1,5 +1,7 @@
 // malBlock content.js
 
+const AUTHOR_NAME = Array.from(document.querySelectorAll('a[title]')).find(a => a.querySelector('svg.eksico use[*|href="#eksico-me"]') && a.textContent.trim() === 'ben')?.getAttribute('title') || '';
+
 const ACTION_KEYS = {
   FUCKOFF: 'FUCKOFF',
   BLOCK: 'BLOCK',
@@ -25,7 +27,7 @@ const ACTIONS = {
   [ACTION_KEYS.FUCKOFF]: {
     type: ACTION_TYPES.INLINE,
     target: (authorName, entryId) => {
-      console.log(`fuckoff ${authorName} (${entryId})`);
+      // console.log(`fuckoff ${authorName} (${entryId})`);
       chrome.runtime.sendMessage({
         action: 'SHOW_MESSAGE_FORM',
         data: {
@@ -36,10 +38,10 @@ const ACTIONS = {
       });
     }
   },
-  [ACTION_KEYS.BLOCK]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'm' },
-  [ACTION_KEYS.UNBLOCK]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'm' },
-  [ACTION_KEYS.MUTE]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'u' },
-  [ACTION_KEYS.UNMUTE]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'u' }
+  [ACTION_KEYS.BLOCK]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'm', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
+  [ACTION_KEYS.UNBLOCK]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'm', applyStyle: 'text-decoration: none; opacity: 1;' },
+  [ACTION_KEYS.MUTE]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'u', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
+  [ACTION_KEYS.UNMUTE]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'u', applyStyle: 'text-decoration: none; opacity: 1;' }
 }
 
 const shortenName = (name) => {
@@ -59,7 +61,15 @@ const makeRequest = (authorId, action) => {
   });
 }
 
-const createActionLinkWithListItem = (authorId, authorName, entryId, actionKeyNames) => {
+const createActionLinkWithListItem = (entryElm, actionKeyNames) => {
+  const entryId = entryElm.getAttribute('data-id');
+  const authorId = entryElm.getAttribute('data-author-id');
+  const authorName = entryElm.getAttribute('data-author');
+
+  if (authorName === AUTHOR_NAME) {
+    return;
+  }
+
   const li = document.createElement('li');
   li.className = 'malblock-actions';
 
@@ -84,11 +94,13 @@ const createActionLinkWithListItem = (authorId, authorName, entryId, actionKeyNa
   a.setAttribute('next-action-ix', 0);
   a.onclick = async (e) => {
     e.preventDefault();
+
     try {
       const actionKeys = JSON.parse(e.target.getAttribute('action-keys'));
       let nextActionIx = parseInt(e.target.getAttribute('next-action-ix'));
       let nextActionKey = actionKeys[nextActionIx];
       const action = ACTIONS[nextActionKey];
+
       if (!action) {
         return;
       }
@@ -98,13 +110,15 @@ const createActionLinkWithListItem = (authorId, authorName, entryId, actionKeyNa
         return;
       }
 
+      e.target.disabled = true;
       const response = await makeRequest(authorId, action);
+
       if (response.ok) {
         if (actionKeyNames.length === 1) {
           return;
         }
-
         console.log(`${nextActionKey} (${authorName}) action successful`);
+        entryElm.querySelector('div.content').style.cssText = ACTIONS[nextActionKey].applyStyle;
         nextActionIx = nextActionIx === 1 ? 0 : 1;
         nextActionKey = actionKeys[nextActionIx];
         e.target.textContent = ACTION_NAMES[nextActionKey];
@@ -114,6 +128,7 @@ const createActionLinkWithListItem = (authorId, authorName, entryId, actionKeyNa
     } catch (error) {
       console.error(`${nextActionKey} (${authorName}) action failed:`, error);
     }
+    e.target.disabled = false;
   }
   li.appendChild(a);
   return li;
@@ -122,17 +137,14 @@ const createActionLinkWithListItem = (authorId, authorName, entryId, actionKeyNa
 const processEntries = () => {
   const entries = document.querySelectorAll('ul#entry-item-list > li');
   const entryDomList = Array.from(entries);
-  entryDomList.forEach(entry => {
-    const entryId = entry.getAttribute('data-id');
-    const authorId = entry.getAttribute('data-author-id');
-    const authorName = entry.getAttribute('data-author');
-    const dropdownMenu = entry.querySelector('div.other.dropdown > ul.dropdown-menu');
+  entryDomList.forEach(entryElm => {
+    const dropdownMenu = entryElm.querySelector('div.other.dropdown > ul.dropdown-menu');
     const actionLinks = [
-      createActionLinkWithListItem(authorId, authorName, entryId),
-      createActionLinkWithListItem(authorId, authorName, entryId, [ACTION_KEYS.FUCKOFF]),
-      createActionLinkWithListItem(authorId, authorName, entryId, [ACTION_KEYS.BLOCK, ACTION_KEYS.UNBLOCK]),
-      createActionLinkWithListItem(authorId, authorName, entryId, [ACTION_KEYS.MUTE, ACTION_KEYS.UNMUTE])
-    ];
+      createActionLinkWithListItem(entryElm, []),
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.FUCKOFF]),
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.BLOCK, ACTION_KEYS.UNBLOCK]),
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.MUTE, ACTION_KEYS.UNMUTE])
+    ].filter(Boolean);
     actionLinks.forEach(actionLink => dropdownMenu.appendChild(actionLink));
   });
 }
@@ -142,11 +154,7 @@ processEntries();
 const observer = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
     if (mutation.addedNodes.length) {
-      const hasNewEntries = Array.from(mutation.addedNodes).some(node =>
-        node.nodeType === Node.ELEMENT_NODE &&
-        (node.matches('li[data-id]') || node.querySelector('li[data-id]'))
-      );
-
+      const hasNewEntries = Array.from(mutation.addedNodes).some(node => node.nodeType === Node.ELEMENT_NODE && (node.matches('li[data-id]') || node.querySelector('li[data-id]')));
       if (hasNewEntries) {
         processEntries();
         break;

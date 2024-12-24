@@ -1,6 +1,5 @@
 // malBlock background.js
-
-console.log('malBlock background script');
+// console.log('malBlock background script');
 
 if (typeof browser == "undefined") {
   // Chrome does not support the browser namespace yet.
@@ -16,14 +15,14 @@ browser.runtime.onStartup.addListener(() => {
 });
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('Message received:', JSON.stringify(message));
+  // console.log('Message received:', JSON.stringify(message));
 
   if (message.action === 'SHOW_MESSAGE_FORM') {
     browser.scripting.executeScript({
       target: { tabId: sender.tab.id },
       world: "MAIN",
       func: (data) => {
-        console.log('Showing message form:', data);
+        //console.log('Showing message form:', data);
         ek$i.showMessageForm(data.authorName, data.message);
       },
       args: [message.data]
