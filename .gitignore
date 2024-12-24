@@ -8,3 +8,4 @@ test/
 pack/
 !pack/*.crx
 !pack/*.zip
+!pack/*.xpi
