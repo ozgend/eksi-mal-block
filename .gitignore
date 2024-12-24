@@ -5,3 +5,6 @@ test/
 *.txt
 *.pem
 *.pub
+pack/
+!pack/*.crx
+!pack/*.zip
