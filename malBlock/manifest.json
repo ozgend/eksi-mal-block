@@ -2,7 +2,16 @@
   "manifest_version": 3,
   "name": "malBlock",
   "version": "1.0",
-  "description": "A Chrome extension to block malicious content.",
+  "author": "denolk",
+  "description": "malBlock chrome extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "malBlock@denolk.dev"
+    },
+    "gecko_android": {
+      "id": "malBlock@denolk.dev"
+    }
+  },
   "permissions": [
     "activeTab",
     "scripting",
@@ -12,7 +21,10 @@
     "*://*.eksisozluk.com/*"
   ],
   "background": {
-    "service_worker": "src/background.js"
+    "service_worker": "src/background.js",
+    "scripts": [
+      "src/background.js"
+    ]
   },
   "content_scripts": [
     {

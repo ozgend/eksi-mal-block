@@ -2,19 +2,24 @@
 
 console.log('malBlock background script');
 
-chrome.runtime.onInstalled.addListener(() => {
+if (typeof browser == "undefined") {
+  // Chrome does not support the browser namespace yet.
+  globalThis.browser = chrome;
+}
+
+browser.runtime.onInstalled.addListener(() => {
   console.log('malBlock extension installed');
 });
 
-chrome.runtime.onStartup.addListener(() => {
+browser.runtime.onStartup.addListener(() => {
   console.log('malBlock extension started');
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Message received:', JSON.stringify(message));
 
   if (message.action === 'SHOW_MESSAGE_FORM') {
-    chrome.scripting.executeScript({
+    browser.scripting.executeScript({
       target: { tabId: sender.tab.id },
       world: "MAIN",
       func: (data) => {
