@@ -1,4 +1,4 @@
-# ![icon](./malBlock/icons/icon32.png) malBlock chrome extension
+# ![icon](./malBlock/icons/icon32.png) malBlock browser extension
 
 malBlock extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions using built-in eksisozluk functionality.
 
