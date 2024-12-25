@@ -3,11 +3,13 @@
 const AUTHOR_NAME = Array.from(document.querySelectorAll('a[title]')).find(a => a.querySelector('svg.eksico use[*|href="#eksico-me"]') && a.textContent.trim() === 'ben')?.getAttribute('title') || '';
 
 const ACTION_KEYS = {
-  FUCKOFF: 'FUCKOFF',
+  MUTE: 'MUTE',
+  UNMUTE: 'UNMUTE',
   BLOCK: 'BLOCK',
   UNBLOCK: 'UNBLOCK',
-  MUTE: 'MUTE',
-  UNMUTE: 'UNMUTE'
+  BLOCK_TITLE: 'BLOCK_TITLE',
+  UNBLOCK_TITLE: 'UNBLOCK_TITLE',
+  FUCKOFF: 'FUCKOFF',
 }
 
 const ACTION_TYPES = {
@@ -16,14 +18,22 @@ const ACTION_TYPES = {
 }
 
 const ACTION_NAMES = {
-  [ACTION_KEYS.FUCKOFF]: '🖕🏻 kes la',
+  [ACTION_KEYS.MUTE]: '🚯 sustur',
+  [ACTION_KEYS.UNMUTE]: '✔️ susturuldu',
   [ACTION_KEYS.BLOCK]: '🚫 engelle',
   [ACTION_KEYS.UNBLOCK]: '✔️ engellendi',
-  [ACTION_KEYS.MUTE]: '🚯 sustur',
-  [ACTION_KEYS.UNMUTE]: '✔️ susturuldu'
+  [ACTION_KEYS.BLOCK_TITLE]: '📵 basliklarini engelle',
+  [ACTION_KEYS.UNBLOCK_TITLE]: '✔️ basliklari engellendi',
+  [ACTION_KEYS.FUCKOFF]: '🖕🏻 kes la',
 }
 
 const ACTIONS = {
+  [ACTION_KEYS.BLOCK]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'm', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
+  [ACTION_KEYS.UNBLOCK]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'm', applyStyle: 'text-decoration: none; opacity: 1;' },
+  [ACTION_KEYS.MUTE]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'u', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
+  [ACTION_KEYS.UNMUTE]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'u', applyStyle: 'text-decoration: none; opacity: 1;' },
+  [ACTION_KEYS.BLOCK_TITLE]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'i', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
+  [ACTION_KEYS.UNBLOCK_TITLE]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'i', applyStyle: 'text-decoration: none; opacity: 1;' },
   [ACTION_KEYS.FUCKOFF]: {
     type: ACTION_TYPES.INLINE,
     target: (authorName, entryId) => {
@@ -37,11 +47,7 @@ const ACTIONS = {
         }
       });
     }
-  },
-  [ACTION_KEYS.BLOCK]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'm', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
-  [ACTION_KEYS.UNBLOCK]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'm', applyStyle: 'text-decoration: none; opacity: 1;' },
-  [ACTION_KEYS.MUTE]: { type: ACTION_TYPES.XHR, target: 'addrelation', param: 'u', applyStyle: 'text-decoration: line-through; opacity: 0.5;' },
-  [ACTION_KEYS.UNMUTE]: { type: ACTION_TYPES.XHR, target: 'removerelation', param: 'u', applyStyle: 'text-decoration: none; opacity: 1;' }
+  }
 }
 
 const shortenName = (name) => {
@@ -76,7 +82,7 @@ const createActionLinkWithListItem = (entryElm, actionKeyNames) => {
   if (!actionKeyNames || actionKeyNames.length === 0) {
     const a = document.createElement('a');
     a.href = '#';
-    a.textContent = `----- malBlock -----`;
+    a.textContent = `⎯⎯⎯ malBlock ⎯⎯⎯`;
     a.setAttribute('title', `(malBlock) ${authorName}`);
     a.onclick = (e) => {
       e.preventDefault();
@@ -139,11 +145,13 @@ const processEntries = () => {
   const entryDomList = Array.from(entries);
   entryDomList.forEach(entryElm => {
     const dropdownMenu = entryElm.querySelector('div.other.dropdown > ul.dropdown-menu');
+    dropdownMenu.style.cssText = 'margin-top: 24px;';
     const actionLinks = [
       createActionLinkWithListItem(entryElm, []),
-      createActionLinkWithListItem(entryElm, [ACTION_KEYS.FUCKOFF]),
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.MUTE, ACTION_KEYS.UNMUTE]),
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.BLOCK_TITLE, ACTION_KEYS.UNBLOCK_TITLE]),
       createActionLinkWithListItem(entryElm, [ACTION_KEYS.BLOCK, ACTION_KEYS.UNBLOCK]),
-      createActionLinkWithListItem(entryElm, [ACTION_KEYS.MUTE, ACTION_KEYS.UNMUTE])
+      createActionLinkWithListItem(entryElm, [ACTION_KEYS.FUCKOFF]),
     ].filter(Boolean);
     actionLinks.forEach(actionLink => dropdownMenu.appendChild(actionLink));
   });

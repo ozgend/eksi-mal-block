@@ -1,12 +1,10 @@
-# ![icon](./malBlock/icons/icon32.png) malBlock chrome extension
+# ![icon](./malBlock/icons/icon32.png) malBlock browser extension
 
-malBlock chrome extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions.
+malBlock extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions using built-in eksisozluk functionality.
 
-![malBlock screenshot](./screenshot.png)
+![malBlock screenshot](./images/screenshot-menu.png)
 
 ## permission justification
 
-- `activeTab`: will be used to inject script & manipulate dom content of eksisozluk.com
 - `scripting`: will be used to inject script & manipulate dom content of eksisozluk.com
-- `tabs`: will be used to inject script & manipulate dom content of eksisozluk.com
 - `host_permissions`: will be used to invoke existing page script within the content of eksisozluk.com
