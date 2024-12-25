@@ -3,7 +3,7 @@
   "name": "malBlock",
   "version": "1.0.4",
   "author": "denolk",
-  "description": "malBlock extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions using built-in eksisozluk functionality",
+  "description": "malBlock extension for eksisozluk.com to extend feedback & user actions menu with direct block & mute actions",
   "browser_specific_settings": {
     "gecko": {
       "id": "malBlock@denolk.dev"
